@@ -10,7 +10,6 @@ import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
-import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
 
@@ -49,17 +48,34 @@ public class Calendar extends AppCompatActivity {
     private void setupPieChart() {
         pieChart.setUsePercentValues(true);
         pieChart.getDescription().setEnabled(false);
+
+        // Itigil ang pagpapakita ng legends
+        pieChart.getLegend().setEnabled(false);
     }
 
     private void addDataToPieChart() {
+        String[] sakitNames = {
+                "Healthy Leaf",
+                "Sooty Mold",
+                "Cercospora",
+                "Leaf Miner",
+                "Leaf Rust",
+                "Phoma"
+        };
+
         ArrayList<PieEntry> entries = new ArrayList<>();
-        entries.add(new PieEntry(22, "Sakit 1"));
-        entries.add(new PieEntry(30, "Sakit 2"));
-        entries.add(new PieEntry(15, "Sakit 3"));
-        entries.add(new PieEntry(12, "Sakit 4"));
+        int totalSeverityLevels = 100;
+
+        for (int i = 0; i < sakitNames.length; i++) {
+            int severityLevel = totalSeverityLevels / sakitNames.length;
+            entries.add(new PieEntry(severityLevel, sakitNames[i]));
+        }
+
+        // Baguhin ang kulay dito, gamitin ang mga hexadecimal color codes
+        int[] colors = {0xFF00796B, 0xFF8D6E63, 0xFF009688, 0xFFE57373, 0xFF795548, 0xFF0277BD};
 
         PieDataSet dataSet = new PieDataSet(entries, "Sakit Distribution");
-        dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+        dataSet.setColors(colors);
         PieData data = new PieData(dataSet);
 
         pieChart.setData(data);
@@ -69,7 +85,5 @@ public class Calendar extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        // Add your custom behavior for the back button here, if needed.
-        // For example, you can navigate to a different activity or finish this one.
     }
 }

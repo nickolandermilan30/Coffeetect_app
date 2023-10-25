@@ -41,13 +41,41 @@
 
   <com.github.mikephil.charting.charts.PieChart
       android:id="@+id/pieChart"
-      android:layout_width="325dp"
-      android:layout_height="388dp"
+      android:layout_width="338dp"
+      android:layout_height="261dp"
       app:layout_constraintBottom_toBottomOf="parent"
       app:layout_constraintEnd_toEndOf="parent"
       app:layout_constraintStart_toStartOf="parent"
       app:layout_constraintTop_toBottomOf="@+id/textView"
       app:layout_constraintVertical_bias="0.088" />
 
+  <TableLayout
+      android:id="@+id/diseaseTable"
+      android:layout_width="348dp"
+      android:layout_height="248dp"
+      android:stretchColumns="0,1"
+      app:layout_constraintBottom_toBottomOf="parent"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintHorizontal_bias="0.507"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toBottomOf="@+id/pieChart"
+      app:layout_constraintVertical_bias="0.317"
+      tools:ignore="MissingConstraints">
+
+    <TableRow>
+
+      <TextView
+          android:layout_width="0dp"
+          android:layout_weight="1"
+          android:text="Disease Name"
+          android:textStyle="bold" />
+
+      <TextView
+          android:layout_width="0dp"
+          android:layout_weight="1"
+          android:text="Severity Level"
+          android:textStyle="bold" />
+    </TableRow>
+  </TableLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

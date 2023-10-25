@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class Calendar extends AppCompatActivity {
 
     PieChart pieChart;
-
+    ArrayList<PieEntry> entries;  // Ito ay para sa mga sakit na na-detect
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,8 +33,11 @@ public class Calendar extends AppCompatActivity {
         // Customize the chart as needed
         setupPieChart();
 
-        // Add data to the PieChart
-        addDataToPieChart();
+        // Inisyal na pag-setup ng PieChart
+        entries = new ArrayList<>();
+        setupPieChartWithData();  // Ito ay magpapakita ng mga sakit na initial
+
+
 
         ImageButton backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(new View.OnClickListener() {
@@ -53,37 +56,44 @@ public class Calendar extends AppCompatActivity {
         pieChart.getLegend().setEnabled(false);
     }
 
-    private void addDataToPieChart() {
-        String[] sakitNames = {
-                "Healthy Leaf",
-                "Sooty Mold",
-                "Cercospora",
-                "Leaf Miner",
-                "Leaf Rust",
-                "Phoma"
-        };
+    private void setupPieChartWithData() {
+        // Ito ay ilalagay ang initial data ng PieChart (kung meron man)
+        int totalSeverityLevels = 100;  // Total na sakit levels
+        int initialSeverityLevels = 50;  // Halimbawa na data, dapat naging variable ito
 
-        ArrayList<PieEntry> entries = new ArrayList<>();
-        int totalSeverityLevels = 100;
-
-        for (int i = 0; i < sakitNames.length; i++) {
-            int severityLevel = totalSeverityLevels / sakitNames.length;
-            entries.add(new PieEntry(severityLevel, sakitNames[i]));
+        if (entries.isEmpty()) {
+            // Ito ay halimbawa lamang. Dapat ay ang mga sakit at kanilang mga severity ay mula sa iyong application
+            entries.add(new PieEntry(initialSeverityLevels, "Healthy Leaf"));
+            entries.add(new PieEntry(totalSeverityLevels - initialSeverityLevels, "Sooty Mold"));
+            entries.add(new PieEntry(totalSeverityLevels - initialSeverityLevels, "Cercospora"));
+            entries.add(new PieEntry(totalSeverityLevels - initialSeverityLevels, "Leaf Miner"));
+            entries.add(new PieEntry(totalSeverityLevels - initialSeverityLevels, "Leaf rust"));
+            entries.add(new PieEntry(totalSeverityLevels - initialSeverityLevels, "Phoma"));
         }
 
-        // Baguhin ang kulay dito, gamitin ang mga hexadecimal color codes
-        int[] colors = {0xFF00796B, 0xFF8D6E63, 0xFF009688, 0xFFE57373, 0xFF795548, 0xFF0277BD};
-
         PieDataSet dataSet = new PieDataSet(entries, "Sakit Distribution");
-        dataSet.setColors(colors);
+        dataSet.setColors(getRandomColors(entries.size()));  // I-customize ang kulay
         PieData data = new PieData(dataSet);
 
         pieChart.setData(data);
         pieChart.invalidate();
     }
-
+    // Halimbawa na function para sa random colors, puwede mo ito palitan ayon sa iyong gusto
+    private int[] getRandomColors(int count) {
+        int[] colors = new int[count];
+        for (int i = 0; i < count; i++) {
+            colors[i] = 0xFF000000 + (int)(Math.random() * 0xFFFFFF);
+        }
+        return colors;
+    }
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+    }
+    // Kapag nais mong idagdag ang mga bagong resulta, itawag ito upang mag-update ng PieChart
+    private void updatePieChartWithNewData(String sakitName, int severityLevel) {
+        // Dapat ay ma-update mo ang entries depende sa mga nadidiskubre mong mga sakit
+        entries.add(new PieEntry(severityLevel, sakitName));
+        setupPieChartWithData();
     }
 }

@@ -123,23 +123,29 @@ public class Calendar extends AppCompatActivity {
             diseaseTable.addView(row);
         }
 
-
-
-
-
-
         // Retrieve data from Firebase
         monthlyReportRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 entries.clear(); // Clear the entries
 
-                int totalSeverityLevels = 100; // Total disease severity levels
+                int totalSeverityLevels = 0; // Total severity levels
 
                 for (DataSnapshot ds : dataSnapshot.getChildren()) {
                     String sakitName = ds.getKey();
                     int severityLevel = ds.getValue(Integer.class);
-                    entries.add(new PieEntry(severityLevel, sakitName));
+
+                    // Add the severity level to the total
+                    totalSeverityLevels += severityLevel;
+
+                    // Compute the percentage based on the total severity levels
+                    double percentage = (severityLevel * 100.0) / totalSeverityLevels;
+
+                    // Create a PieEntry with the computed percentage
+                    PieEntry pieEntry = new PieEntry((float) percentage, sakitName);
+
+                    // Add the PieEntry to the entries list
+                    entries.add(pieEntry);
                 }
 
                 // Update the PieChart
@@ -156,6 +162,7 @@ public class Calendar extends AppCompatActivity {
                 // Handle errors if needed
             }
         });
+
 
         ImageButton backButton = findViewById(R.id.backButton);
         backButton.setOnClickListener(new View.OnClickListener() {

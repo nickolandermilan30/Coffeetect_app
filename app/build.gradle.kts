@@ -48,6 +48,7 @@ dependencies {
     implementation ("com.google.code.gson:gson:2.8.8")
     implementation ("androidx.camera:camera-core:1.1.0")
     implementation ("androidx.camera:camera-camera2:1.1.0")
+    implementation ("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
     implementation ("androidx.camera:camera-core:1.1.0-alpha01")
     implementation ("androidx.camera:camera-camera2:1.1.0-alpha01")

@@ -1,7 +1,6 @@
 package com.example.application;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,7 +11,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class Result_Activity extends AppCompatActivity {
@@ -104,84 +102,58 @@ public class Result_Activity extends AppCompatActivity {
 
 
                     // Redirect to another activity (Folders)
-                    Intent intent;
+                    Intent intent = null;
                     if (SavedResultsManager.getSavedResultsCount() < 10) {
                         intent = new Intent(Result_Activity.this, Folders.class);
                     } else if (SavedResultsManager.getSavedResultsCountHistory2() < 10) {
-
                         intent = new Intent(Result_Activity.this, Folders.class);
                     } else if (SavedResultsManager.getSavedResultsCountHistory3() < 10) {
-
                         intent = new Intent(Result_Activity.this, Folders.class);
                     } else if (SavedResultsManager.getSavedResultsCountHistory4() < 10) {
-
                         intent = new Intent(Result_Activity.this, Folders.class);
                     } else if (SavedResultsManager.getSavedResultsCountHistory5() < 10) {
-
                         intent = new Intent(Result_Activity.this, Folders.class);
-                    } else {
-                        // Limit the number of results in history6 to 10
-                        if (SavedResultsManager.getSavedResultsCountHistory6() < 10) {
-                            intent = new Intent(Result_Activity.this, Folders.class);
-
-                        } else {
-                            // Show an alert dialog if history6 is full
-                            AlertDialog.Builder builder = new AlertDialog.Builder(Result_Activity.this);
-                            builder.setTitle("The Folder is Full");
-                            builder.setMessage("You have reached the maximum limit of saved results");
-                            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
-                            });
-                            builder.create().show();
-
-                            intent = new Intent(Result_Activity.this, Folders.class);
-                        }
+                    } else if (SavedResultsManager.getSavedResultsCountHistory6() < 10) {
+                        intent = new Intent(Result_Activity.this, Folders.class);
+                    } else if (SavedResultsManager.getSavedResultsCountHistory7() < 10) {
+                        intent = new Intent(Result_Activity.this, Folders.class);
+                    } else if (SavedResultsManager.getSavedResultsCountHistory8() < 10) {
+                        intent = new Intent(Result_Activity.this, Folders.class);
+                    } else if (SavedResultsManager.getSavedResultsCountHistory9() < 10) {
+                        intent = new Intent(Result_Activity.this, Folders.class);
+                    } else if (SavedResultsManager.getSavedResultsCountHistory10() < 10) {
+                        intent = new Intent(Result_Activity.this, Folders.class);
                     }
                     startActivity(intent);
 
-// Check if `History` is full
+                    // Check if `History` is full and add to the appropriate history list
                     if (SavedResultsManager.getSavedResultsCount() < 10) {
-                        // If not full, add to `History`
                         SavedResultsManager.addSavedResult(savedResult);
                     } else if (SavedResultsManager.getSavedResultsCountHistory2() < 10) {
-
-                        // If `History` is full but `History2` is not, add to `History2`
                         SavedResultsManager.addSavedResultToHistory2(savedResult);
                     } else if (SavedResultsManager.getSavedResultsCountHistory3() < 10) {
-
-                        // If `History2` is full but `History3` is not, add to `History3`
                         SavedResultsManager.addSavedResultToHistory3(savedResult);
                     } else if (SavedResultsManager.getSavedResultsCountHistory4() < 10) {
-
-                        // If `History3` is full but `History4` is not, add to `History4`
                         SavedResultsManager.addSavedResultToHistory4(savedResult);
                     } else if (SavedResultsManager.getSavedResultsCountHistory5() < 10) {
-
-                        // If `History4` is full but `History5` is not, add to `History5`
                         SavedResultsManager.addSavedResultToHistory5(savedResult);
                     } else if (SavedResultsManager.getSavedResultsCountHistory6() < 10) {
-
-                        // If `History5` is full but `History6` is not, add to `History6`
                         SavedResultsManager.addSavedResultToHistory6(savedResult);
+                    } else if (SavedResultsManager.getSavedResultsCountHistory7() < 10) {
+                        SavedResultsManager.addSavedResultToHistory7(savedResult);
+                    } else if (SavedResultsManager.getSavedResultsCountHistory8() < 10) {
+                        SavedResultsManager.addSavedResultToHistory8(savedResult);
+                    } else if (SavedResultsManager.getSavedResultsCountHistory9() < 10) {
+                        SavedResultsManager.addSavedResultToHistory9(savedResult);
+                    } else if (SavedResultsManager.getSavedResultsCountHistory10() < 10) {
+                        SavedResultsManager.addSavedResultToHistory10(savedResult);
                     }
 
                     isSaving = false;
                 }
-            }
-        });
 
-
-
-
-
-
-
-
-
-
+        }
+    });
 
 
     // Add back button functionality

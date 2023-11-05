@@ -34,6 +34,7 @@ public class SavedResultsManager<result> {
     }
 
 
+
     public static void addSavedResult(SavedResult savedResult) {
         savedResultsList.add(0, savedResult);
 
@@ -49,6 +50,8 @@ public class SavedResultsManager<result> {
             savedResultsList.remove(savedResultsList.size() - 1);
         }
     }
+
+
 
     public static String getMostFrequentDisease() {
         String mostFrequentDisease = null;

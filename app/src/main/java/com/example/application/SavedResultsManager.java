@@ -289,6 +289,7 @@ public class SavedResultsManager<result> {
     }
 
 
+
     public static String getSavedResultsAsString() {
         Gson gson = new Gson();
         return gson.toJson(savedResultsList);

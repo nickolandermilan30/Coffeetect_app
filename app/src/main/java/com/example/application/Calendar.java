@@ -1,21 +1,20 @@
 package com.example.application;
 
-// Import the necessary Firebase classes
-
-import android.graphics.Color;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ImageButton;
-import android.widget.TableLayout;
-import android.widget.TableRow;
-import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.data.PieData;
 import com.github.mikephil.charting.data.PieDataSet;
 import com.github.mikephil.charting.data.PieEntry;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -23,13 +22,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Calendar extends AppCompatActivity {
 
-    PieChart pieChart;
-    ArrayList<PieEntry> entries = new ArrayList<>(); // To store detected diseases
+    private PieChart pieChart;
+    private FirebaseAuth auth;
+    private DatabaseReference historyRef;
+    private ArrayList<PieEntry> entries = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,152 +41,50 @@ public class Calendar extends AppCompatActivity {
             getSupportActionBar().hide();
         }
 
-        // Modify your severity thresholds
-        int mildThreshold = 20;
-        int moderateThreshold = 40;
-        int criticalThreshold = 60;
-
+        auth = FirebaseAuth.getInstance();
         pieChart = findViewById(R.id.pieChart);
-        setupPieChart();
 
-        // Initialize the Firebase database
-        DatabaseReference monthlyReportRef = FirebaseDatabase.getInstance().getReference("monthly_reports").child("2023").child("October");
-
-        // Example disease data (you can replace this with your actual data)
-        HashMap<String, Integer> diseaseData = new HashMap<>();
-        diseaseData.put("Cercospora", 15);
-        diseaseData.put("Sooty Mold", 20);
-        diseaseData.put("Leaf Rust", 30);
-        diseaseData.put("Leaf Miner", 40);
-        diseaseData.put("Phoma", 50);
-        diseaseData.put("Healthy Leaf", 60);
-
-// Calculate the total severity levels
-        int totalSeverityLevels = 0;
-
-        for (Map.Entry<String, Integer> entry : diseaseData.entrySet()) {
-            totalSeverityLevels += entry.getValue();
+        // Authenticate the user anonymously (if not already authenticated)
+        if (auth.getCurrentUser() == null) {
+            auth.signInAnonymously().addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if (task.isSuccessful()) {
+                        FirebaseUser user = auth.getCurrentUser();
+                        Toast.makeText(Calendar.this, user.getUid(), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         }
 
-// Add data to the Firebase database
-        monthlyReportRef.setValue(diseaseData);
+        // Initialize Firebase Realtime Database reference
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        historyRef = database.getReference("sakit_history");
 
-// Populate the TableLayout
-        TableLayout diseaseTable = findViewById(R.id.diseaseTable);
-
-        for (Map.Entry<String, Integer> entry : diseaseData.entrySet()) {
-            String diseaseName = entry.getKey();
-            int severityLevel = entry.getValue();
-            String severityCategory;
-
-            // Determine the severity category based on severity level
-            if (severityLevel < mildThreshold) {
-                severityCategory = "Mild";
-            } else if (severityLevel < moderateThreshold) {
-                severityCategory = "Moderate";
-            } else if (severityLevel < criticalThreshold) {
-                severityCategory = "Critical";
-            } else {
-                severityCategory = "Unknown"; // Add more categories if needed
-            }
-
-            // Calculate the percentage based on the total severity levels
-            double percentage = (severityLevel * 100.0) / totalSeverityLevels;
-
-            // Create a new TableRow
-            TableRow row = new TableRow(this);
-
-            // Create TextViews for disease name, severity level, category, and percentage
-            TextView nameTextView = new TextView(this);
-            nameTextView.setLayoutParams(new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1));
-            nameTextView.setText(diseaseName);
-
-            TextView severityTextView = new TextView(this);
-            severityTextView.setLayoutParams(new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1));
-            severityTextView.setText(String.valueOf(severityLevel));
-
-            TextView categoryTextView = new TextView(this);
-            categoryTextView.setLayoutParams(new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1));
-            categoryTextView.setText(severityCategory);
-
-            TextView percentageTextView = new TextView(this);
-            percentageTextView.setLayoutParams(new TableRow.LayoutParams(0, TableRow.LayoutParams.WRAP_CONTENT, 1));
-            percentageTextView.setText(String.format("%.2f%%", percentage));
-
-            // Add TextViews to the TableRow
-            row.addView(nameTextView);
-            row.addView(severityTextView);
-            row.addView(categoryTextView);
-            row.addView(percentageTextView);
-
-            // Add the TableRow to the TableLayout
-            diseaseTable.addView(row);
-        }
-
-        // Retrieve data from Firebase
-        monthlyReportRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        // Listen for changes in the sakit history data
+        historyRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                entries.clear(); // Clear the entries
+                // Process the data and update the pie chart
+                entries.clear();
 
-                int totalSeverityLevels = 0; // Total severity levels
-
-                for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                    String sakitName = ds.getKey();
-                    int severityLevel = ds.getValue(Integer.class);
-
-                    // Add the severity level to the total
-                    totalSeverityLevels += severityLevel;
-
-                    // Compute the percentage based on the total severity levels
-                    double percentage = (severityLevel * 100.0) / totalSeverityLevels;
-
-                    // Create a PieEntry with the computed percentage
-                    PieEntry pieEntry = new PieEntry((float) percentage, sakitName);
-
-                    // Add the PieEntry to the entries list
-                    entries.add(pieEntry);
+                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
+                    String sakit = snapshot.getValue(String.class);
+                    // Process the sakit data as needed
+                    entries.add(new PieEntry(1, sakit)); // 1 represents the count, you can adjust this as needed
                 }
 
-                // Update the PieChart
-                PieDataSet dataSet = new PieDataSet(entries, "Monthly Report");
-                dataSet.setColors(getRandomColors(entries.size())); // Call getRandomColors function
-                PieData data = new PieData(dataSet);
-
-                pieChart.setData(data);
+                // Update the pie chart with the latest data
+                PieDataSet dataSet = new PieDataSet(entries, "Sakit History");
+                PieData pieData = new PieData(dataSet);
+                pieChart.setData(pieData);
                 pieChart.invalidate();
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                // Handle errors if needed
+                // Handle errors
             }
         });
-
-
-        ImageButton backButton = findViewById(R.id.backButton);
-        backButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onBackPressed();
-            }
-        });
-    }
-
-    private void setupPieChart() {
-        pieChart.setUsePercentValues(true);
-        pieChart.getDescription().setEnabled(false);
-
-        // Disable the display of legends
-        pieChart.getLegend().setEnabled(false);
-    }
-
-    // Function to generate random colors
-    private int[] getRandomColors(int count) {
-        int[] colors = new int[count];
-        for (int i = 0; i < count; i++) {
-            colors[i] = Color.rgb((int) (Math.random() * 255), (int) (Math.random() * 255), (int) (Math.random() * 255));
-        }
-        return colors;
     }
 }

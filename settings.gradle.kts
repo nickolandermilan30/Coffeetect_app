@@ -15,7 +15,7 @@ dependencyResolutionManagement {
             setUrl("https://jitpack.io")
         }
     }
+
 }
 rootProject.name = "Application"
-include(":app")
- 
+include ("app")

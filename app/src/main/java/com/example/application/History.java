@@ -15,13 +15,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+
+import org.checkerframework.checker.nullness.qual.NonNull;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -38,13 +39,13 @@ public class History extends AppCompatActivity {
 
     private TextView savedResultsCountTextView;
 
-    // Initialize Firebase database reference
-    DatabaseReference savedResultsRef = FirebaseDatabase.getInstance().getReference("saved_results");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_history);
+
+
 
         // Hide the action bar (app bar or title bar)
         if (getSupportActionBar() != null) {
@@ -102,6 +103,11 @@ public class History extends AppCompatActivity {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         isRecommendationClickable = false;
+
+                        // Tawagan ang method para tanggalin ang mga larawan sa Firebase Storage
+                        clearImagesInFirebaseStorage();
+
+                        // Tanggalin ang iyong mga resulta sa "History"
                         SavedResultsManager.clearSavedResults();
 
                         // Refresh the RecyclerView
@@ -114,20 +120,50 @@ public class History extends AppCompatActivity {
                         recommendationButton.setVisibility(View.GONE);
                         isRecommendationClickable = true;
 
-                        // Update the saved results count TextView to 0
+                        // I-update ang saved results count TextView na 0
                         updateSavedResultsCount(0);
-
-                        // Clear saved results in Firebase
-                        clearSavedResultsInFirebase();
 
                         // Clear saved results in SharedPreferences
                         clearSavedResultsInSharedPreferences();
                     }
+
+                    private void clearImagesInFirebaseStorage() {
+                        FirebaseStorage storage = FirebaseStorage.getInstance();
+                        StorageReference storageRef = storage.getReference();
+
+                        for (SavedResult result : savedResultsList) {
+                            String imageUrl = result.getImageUrl();
+                            if (imageUrl != null) {
+                                // Extract the filename from the image URL
+                                String filename = imageUrl.substring(imageUrl.lastIndexOf('/') + 1);
+
+                                // Create a reference to the image file
+                                StorageReference imageRef = storageRef.child("images/" + filename);
+
+                                // Delete the image file
+                                imageRef.delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        // Handle success (image deleted)
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        // Handle failure (image not deleted)
+                                    }
+                                });
+
+
+
+                }
+                        }
+                    }
+
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        // Do nothing, user canceled the clear operation
+                        // Huwag gawin ang anumang hakbang, kinansela ng user ang operasyon
                     }
                 });
                 AlertDialog alertDialog = builder.create();
@@ -148,35 +184,6 @@ public class History extends AppCompatActivity {
         savedResultsCountTextView.setText("Saved Results: " + count);
     }
 
-    // Load saved results from Firebase
-    private void loadSavedResultsFromFirebase() {
-        savedResultsRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                savedResultsList.clear();
-
-                for (DataSnapshot ds : dataSnapshot.getChildren()) {
-                    SavedResult savedResult = ds.getValue(SavedResult.class);
-                    savedResultsList.add(savedResult);
-                }
-
-                RecyclerView recyclerView = findViewById(R.id.recyclerView);
-                recyclerView.getAdapter().notifyDataSetChanged();
-
-                updateSavedResultsCount(savedResultsList.size());
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-                // Handle errors if needed
-            }
-        });
-    }
-
-    // Clear saved results in Firebase
-    private void clearSavedResultsInFirebase() {
-        savedResultsRef.setValue(null);
-    }
 
     // Save results to SharedPreferences
     private void saveResultsToSharedPreferences(List<SavedResult> results) {

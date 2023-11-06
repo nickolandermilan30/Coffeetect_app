@@ -1,14 +1,13 @@
 {
   "project_info": {
-    "project_number": "48817748680",
-    "firebase_url": "https://piechart-36336-default-rtdb.firebaseio.com",
-    "project_id": "piechart-36336",
-    "storage_bucket": "piechart-36336.appspot.com"
+    "project_number": "862531434162",
+    "project_id": "coffetectfirebase",
+    "storage_bucket": "coffetectfirebase.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:48817748680:android:187ca5cf7a268f1e8083fd",
+        "mobilesdk_app_id": "1:862531434162:android:a2373cfcf16b10108a3bab",
         "android_client_info": {
           "package_name": "com.example.application"
         }
@@ -16,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyAbxksVYR0l9rKPr5qnxJuEfaxDe9ZgfKw"
+          "current_key": "AIzaSyAjcpE40_gOTsP7yuC5cbzGKWxFom6Xvxk"
         }
       ],
       "services": {

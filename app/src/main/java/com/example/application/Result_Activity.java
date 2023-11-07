@@ -153,8 +153,14 @@ public class Result_Activity extends AppCompatActivity {
         imageBitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         byte[] byteArray = stream.toByteArray();
 
+        // Retrieve the disease name from the Intent
+        String result = getIntent().getStringExtra("result");
+
+        // Sanitize the result string for Firebase Storage filename
+        String sanitizedResult = result.replaceAll("[^a-zA-Z0-9_]", "_");
+
         // Generate a unique filename (e.g., using a timestamp)
-        String filename = System.currentTimeMillis() + ".png";
+        String filename = sanitizedResult + "_" + System.currentTimeMillis() + ".png";
 
         // Get a reference to the Firebase Storage
         FirebaseStorage storage = FirebaseStorage.getInstance();
@@ -191,4 +197,6 @@ public class Result_Activity extends AppCompatActivity {
             }
         });
     }
+
+
 }
